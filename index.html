@@ -1,0 +1,476 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Brian Pyatt — VeriBuy Technical Approach</title>
+    <link rel="stylesheet" href="https://api.fontshare.com/v2/css?f[]=clash-display@400;500;600;700&f[]=satoshi@400;500;700&display=swap">
+    <style>
+        :root {
+            --bg: #0a0f1c;
+            --bg-card: rgba(17,24,39,0.7);
+            --text: #ffffff;
+            --text2: rgba(255,255,255,0.55);
+            --text3: rgba(255,255,255,0.3);
+            --cy: #00ffcc;
+            --mg: #ff00aa;
+            --bl: #3b82f6;
+            --gcy: rgba(0,255,204,0.25);
+            --gmg: rgba(255,0,170,0.18);
+            --brd: rgba(0,255,204,0.12);
+            --fd: 'Clash Display', sans-serif;
+            --fb: 'Satoshi', sans-serif;
+            --title: clamp(2.2rem,5.5vw,4.5rem);
+            --h2: clamp(1.4rem,3.5vw,2.6rem);
+            --h3: clamp(0.9rem,1.8vw,1.15rem);
+            --body: clamp(0.75rem,1.3vw,1rem);
+            --sm: clamp(0.6rem,1vw,0.78rem);
+            --pad: clamp(1.5rem,4vw,4rem);
+            --gap: clamp(0.6rem,1.5vw,1.5rem);
+            --ease: cubic-bezier(0.16,1,0.3,1);
+        }
+        *{margin:0;padding:0;box-sizing:border-box}
+        html,body{height:100%;overflow:hidden;font-family:var(--fb);background:var(--bg);color:var(--text)}
+
+        .deck{position:relative;width:100vw;height:100vh;height:100dvh}
+        .slide{position:absolute;inset:0;padding:var(--pad);display:flex;flex-direction:column;justify-content:center;align-items:center;opacity:0;pointer-events:none;transition:opacity .45s ease,transform .45s var(--ease);transform:translateY(20px)}
+        .slide.active{opacity:1;pointer-events:auto;transform:translateY(0);z-index:1}
+        .slide.exit-up{opacity:0;transform:translateY(-20px)}
+        .slide.exit-down{opacity:0;transform:translateY(20px)}
+
+        .sc{width:100%;max-width:min(90vw,1050px);display:flex;flex-direction:column;max-height:calc(100vh - var(--pad)*2);overflow:hidden}
+        .sc.ctr{align-items:center;text-align:center}
+
+        .grid-bg{position:fixed;inset:0;background-image:linear-gradient(rgba(0,255,204,0.03) 1px,transparent 1px),linear-gradient(90deg,rgba(0,255,204,0.03) 1px,transparent 1px);background-size:60px 60px;pointer-events:none;z-index:0}
+        .orb{position:absolute;border-radius:50%;filter:blur(80px);pointer-events:none}
+        .oc{width:clamp(200px,28vw,380px);height:clamp(200px,28vw,380px);background:var(--gcy)}
+        .om{width:clamp(150px,22vw,280px);height:clamp(150px,22vw,280px);background:var(--gmg)}
+
+        .progress{position:fixed;top:0;left:0;height:3px;background:linear-gradient(90deg,var(--cy),var(--mg));z-index:100;transition:width .35s ease;width:0%}
+        .nav-dots{position:fixed;right:clamp(0.6rem,1.5vw,1.5rem);top:50%;transform:translateY(-50%);display:flex;flex-direction:column;gap:8px;z-index:100}
+        .nav-dot{width:8px;height:8px;border-radius:50%;border:1px solid rgba(0,255,204,0.3);background:transparent;cursor:pointer;padding:0;transition:all .3s ease}
+        .nav-dot.active{background:var(--cy);box-shadow:0 0 10px var(--gcy);transform:scale(1.3)}
+        .counter{position:fixed;top:clamp(0.8rem,2vw,1.5rem);right:clamp(2rem,4vw,4rem);font-family:var(--fd);font-size:var(--sm);color:var(--text3);z-index:100;letter-spacing:.1em}
+        .counter .cur{color:var(--cy)}
+
+        h1{font-family:var(--fd);font-size:var(--title);font-weight:700;line-height:1.05}
+        h2{font-family:var(--fd);font-size:var(--h2);font-weight:600;line-height:1.15;margin-bottom:var(--gap)}
+        h3{font-family:var(--fd);font-size:var(--h3);font-weight:500;line-height:1.3}
+        p,li{font-size:var(--body);line-height:1.5;color:var(--text2)}
+
+        .grad{background:linear-gradient(135deg,#fff,var(--cy));-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .cy{color:var(--cy)}.mg{color:var(--mg)}.mu{color:var(--text3)}
+
+        .badge{display:inline-block;border:1px solid rgba(0,255,204,0.35);color:var(--cy);padding:.3em 1em;border-radius:100px;font-size:var(--sm);text-transform:uppercase;letter-spacing:.18em;margin-bottom:var(--gap)}
+        .badge-fill{background:var(--cy);color:var(--bg);border:none;font-weight:700}
+        .badge-mg{border-color:rgba(255,0,170,0.4);color:var(--mg)}
+
+        .card{background:var(--bg-card);border:1px solid var(--brd);border-radius:10px;padding:clamp(0.7rem,1.5vw,1.2rem);backdrop-filter:blur(8px)}
+        .card h3{margin-bottom:.3em}
+        .card p{font-size:var(--sm);color:var(--text3);line-height:1.4}
+
+        .g2{display:grid;grid-template-columns:1fr 1fr;gap:clamp(0.4rem,1.2vw,0.8rem)}
+        .g3{display:grid;grid-template-columns:repeat(3,1fr);gap:clamp(0.4rem,1.2vw,0.8rem)}
+
+        .stats{display:flex;gap:clamp(1.5rem,4vw,3.5rem);flex-wrap:wrap;justify-content:center}
+        .sv{font-family:var(--fd);font-size:clamp(1.8rem,4vw,3rem);font-weight:700;color:var(--cy);text-shadow:0 0 25px var(--gcy);line-height:1.1}
+        .sl{font-size:var(--sm);color:var(--text3);text-transform:uppercase;letter-spacing:.14em;margin-top:.25em}
+
+        .fl{list-style:none;display:flex;flex-direction:column;gap:clamp(0.25rem,0.6vw,0.5rem)}
+        .fl li{font-size:var(--body);display:flex;align-items:flex-start;gap:.5em}
+        .fl li::before{content:'';width:5px;height:5px;border-radius:50%;background:var(--cy);flex-shrink:0;margin-top:.6em}
+
+        .flow{display:flex;align-items:center;gap:clamp(0.2rem,0.8vw,0.6rem);flex-wrap:wrap}
+        .fs{background:var(--bg-card);border:1px solid var(--brd);border-radius:6px;padding:clamp(0.4rem,0.8vw,0.6rem) clamp(0.5rem,1vw,0.8rem);font-size:var(--sm);font-weight:500;white-space:nowrap}
+        .fa{color:var(--cy);font-size:var(--body);opacity:.4}
+
+        .tb{width:100%;border-collapse:collapse;font-size:var(--sm)}
+        .tb th{text-align:left;color:var(--cy);font-weight:600;padding:clamp(0.25rem,0.5vw,0.4rem) clamp(0.3rem,0.8vw,0.6rem);border-bottom:1px solid rgba(0,255,204,0.2);text-transform:uppercase;letter-spacing:.08em;font-size:var(--sm)}
+        .tb td{padding:clamp(0.25rem,0.5vw,0.4rem) clamp(0.3rem,0.8vw,0.6rem);border-bottom:1px solid rgba(255,255,255,0.04);color:var(--text2)}
+        .tb td:first-child{color:var(--text);font-weight:500}
+
+        .ph{display:flex;align-items:baseline;gap:clamp(0.5rem,1.5vw,1.5rem);margin-bottom:var(--gap)}
+        .pn{font-family:var(--fd);font-size:clamp(2rem,5vw,3.5rem);font-weight:700;color:var(--cy);opacity:.15;line-height:1}
+
+        /* Highlight box for key insights */
+        .insight{border-left:3px solid var(--cy);padding-left:clamp(0.8rem,1.5vw,1.2rem);margin-top:var(--gap)}
+        .insight p{font-size:var(--body);color:var(--text2);font-style:italic}
+
+        /* Comparison columns */
+        .vs{display:grid;grid-template-columns:1fr auto 1fr;gap:clamp(0.5rem,1.5vw,1.5rem);align-items:center;margin-top:var(--gap)}
+        .vs-div{width:2px;height:100%;background:var(--brd);justify-self:center}
+
+        .rv{opacity:0;transform:translateY(18px);transition:opacity .5s var(--ease),transform .5s var(--ease)}
+        .slide.active .rv{opacity:1;transform:translateY(0)}
+        .slide.active .rv:nth-child(1){transition-delay:.05s}
+        .slide.active .rv:nth-child(2){transition-delay:.12s}
+        .slide.active .rv:nth-child(3){transition-delay:.18s}
+        .slide.active .rv:nth-child(4){transition-delay:.24s}
+        .slide.active .rv:nth-child(5){transition-delay:.30s}
+        .slide.active .rv:nth-child(6){transition-delay:.35s}
+
+        @media(max-height:700px){:root{--pad:clamp(0.75rem,3vw,2rem);--gap:clamp(0.4rem,1vw,0.8rem);--h2:clamp(1.2rem,3vw,2rem)}}
+        @media(max-height:600px){:root{--pad:clamp(0.5rem,2.5vw,1.5rem);--body:clamp(0.65rem,1.1vw,0.85rem);--sm:clamp(0.55rem,0.9vw,0.7rem)}.nav-dots{display:none}}
+        @media(max-width:768px){.g3{grid-template-columns:1fr 1fr}.vs{grid-template-columns:1fr;gap:var(--gap)}.vs-div{width:100%;height:2px}}
+        @media(max-width:500px){.g2,.g3{grid-template-columns:1fr}.flow{flex-direction:column;align-items:flex-start}.fa{transform:rotate(90deg)}}
+        @media(prefers-reduced-motion:reduce){*,*::before,*::after{animation-duration:.01ms!important;transition-duration:.15s!important}.rv{opacity:1;transform:none}}
+    </style>
+</head>
+<body>
+    <div class="grid-bg"></div>
+    <div class="progress" id="prog"></div>
+    <nav class="nav-dots" id="dots"></nav>
+    <div class="counter"><span class="cur" id="cur">01</span><span class="mu"> / </span><span class="mu" id="tot">14</span></div>
+
+    <div class="deck" id="deck">
+
+        <!-- SLIDE 1: TITLE -->
+        <section class="slide active">
+            <div class="orb oc" style="top:8%;left:12%"></div>
+            <div class="orb om" style="bottom:12%;right:8%"></div>
+            <div class="sc ctr">
+                <div class="badge rv">Technical Approach</div>
+                <h1 class="grad rv">Brian Pyatt</h1>
+                <p class="rv" style="font-size:clamp(0.9rem,1.6vw,1.2rem);max-width:600px;margin-top:var(--gap)">How I'd Build VeriBuy's True MVP</p>
+                <div class="stats rv" style="margin-top:var(--gap)">
+                    <div><div class="sv" style="font-size:clamp(1rem,2.2vw,1.6rem)">Full-Stack</div><div class="sl">End to End</div></div>
+                    <div><div class="sv" style="font-size:clamp(1rem,2.2vw,1.6rem)">Systems Thinker</div><div class="sl">Architecture</div></div>
+                    <div><div class="sv" style="font-size:clamp(1rem,2.2vw,1.6rem)">Ship Fast</div><div class="sl">Iterate &amp; Deploy</div></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 2: I UNDERSTAND THE MISSION -->
+        <section class="slide">
+            <div class="orb oc" style="top:5%;right:18%"></div>
+            <div class="sc">
+                <div class="badge rv">The Mission</div>
+                <h2 class="rv">I understand what VeriBuy <span class="cy">actually is</span></h2>
+                <div class="insight rv">
+                    <p>"The long-term moat is not the model &mdash; it's the proprietary inspection dataset, scoring logic, and workflow integration that improve over time."</p>
+                </div>
+                <p class="rv" style="margin-top:var(--gap);max-width:700px">This isn't a research ML problem. It's a <strong style="color:var(--text)">production data pipeline and decision engine</strong> that turns noisy inspection media into structured, explainable scores that insurers and lenders can stake decisions on.</p>
+                <p class="rv" style="margin-top:var(--gap);max-width:700px">The system that <span class="cy">compounds intelligence from every inspection</span> is the product. Everything else is scaffolding.</p>
+            </div>
+        </section>
+
+        <!-- SLIDE 3: WHERE YOU ARE → WHERE YOU NEED TO GO -->
+        <section class="slide">
+            <div class="orb om" style="top:20%;left:8%"></div>
+            <div class="sc">
+                <div class="badge rv">Current State</div>
+                <h2 class="rv">Prototype &rarr; <span class="cy">Decision Engine</span></h2>
+                <div class="vs rv">
+                    <div>
+                        <h3 class="mg" style="margin-bottom:.5em">Today (Prototype)</h3>
+                        <ul class="fl">
+                            <li>Photos sent to external AI APIs</li>
+                            <li>Structured outputs returned</li>
+                            <li>Results stored and reported</li>
+                            <li class="mu">No proprietary intelligence</li>
+                            <li class="mu">Doesn't improve with usage</li>
+                        </ul>
+                    </div>
+                    <div class="vs-div"></div>
+                    <div>
+                        <h3 class="cy" style="margin-bottom:.5em">True MVP (Target)</h3>
+                        <ul class="fl">
+                            <li>Structured ingestion pipeline</li>
+                            <li>Training-ready data from day one</li>
+                            <li>Hybrid inference (API + internal)</li>
+                            <li>Explainable, auditable scoring</li>
+                            <li>Feedback loop &mdash; gets smarter</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 4: MY APPROACH — OVERVIEW -->
+        <section class="slide">
+            <div class="orb oc" style="bottom:15%;right:12%"></div>
+            <div class="sc">
+                <div class="badge badge-fill rv">My Approach</div>
+                <h2 class="rv">How I'd architect this</h2>
+                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">Seven services, loosely coupled via event bus. Each owns its data. Each can be built, tested, and deployed independently. I'd build them in 4 phases.</p>
+                <div class="flow rv">
+                    <div class="fs">Ingestion API</div><div class="fa">&rarr;</div>
+                    <div class="fs">Media Processor</div><div class="fa">&rarr;</div>
+                    <div class="fs">Inference Router</div><div class="fa">&rarr;</div>
+                    <div class="fs">Model Service</div><div class="fa">&rarr;</div>
+                    <div class="fs">Scoring Engine</div><div class="fa">&rarr;</div>
+                    <div class="fs">Report API</div>
+                </div>
+                <p class="rv mu" style="margin-top:var(--gap)">+ Label Studio Adapter for training data capture &bull; Kafka event bus for async, replayable comms</p>
+            </div>
+        </section>
+
+        <!-- SLIDE 5: PHASE 1 — INGESTION -->
+        <section class="slide">
+            <div class="orb oc" style="top:45%;left:3%"></div>
+            <div class="sc">
+                <div class="ph">
+                    <div class="pn rv">01</div>
+                    <div><div class="badge rv">Weeks 1&ndash;4</div><h2 class="rv" style="margin-bottom:0">Structured Ingestion</h2></div>
+                </div>
+                <p class="rv" style="max-width:600px;margin-bottom:var(--gap)">The foundation. Every photo, every signal, structured from the moment it hits the system.</p>
+                <div class="g2 rv">
+                    <div class="card"><h3 class="cy">Validate &amp; Store</h3><p>MIME checks, pHash dedup, size limits, malware scan. Raw &rarr; S3 with structured paths.</p></div>
+                    <div class="card"><h3 class="cy">Extract Signals</h3><p>EXIF, GPS, quality scores (blur, brightness, contrast), face/plate detection &amp; auto-blur.</p></div>
+                    <div class="card"><h3 class="cy">Normalize</h3><p>Standardized JPEG at 2048px, 256px thumbnails, CLIP embeddings stored in pgvector.</p></div>
+                    <div class="card"><h3 class="cy">Asset Graph</h3><p>Link inspections to assets over time. This is where the compounding data moat starts.</p></div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 6: PHASE 2 — TRAINING DATA -->
+        <section class="slide">
+            <div class="orb om" style="bottom:18%;right:8%"></div>
+            <div class="sc">
+                <div class="ph">
+                    <div class="pn rv">02</div>
+                    <div><div class="badge badge-mg rv">Weeks 3&ndash;6</div><h2 class="rv" style="margin-bottom:0">Training Data Infrastructure</h2></div>
+                </div>
+                <p class="rv" style="max-width:600px;margin-bottom:var(--gap)">Most teams skip this and regret it. I'd build outcome capture from day one.</p>
+                <ul class="fl rv">
+                    <li><strong>Label Studio</strong> &mdash; Self-hosted annotation tool, not a custom UI. Focus effort on the adapter, not the interface.</li>
+                    <li><strong>6-Dimension Taxonomy</strong> &mdash; Exterior paint, body panels, glass, wheels, interior, mechanical. Locked before first annotation.</li>
+                    <li><strong>Inter-Rater Tracking</strong> &mdash; Dual-annotate 20% of images. If MAE &gt; 2.0 on any dimension, rewrite the guideline.</li>
+                    <li><strong>Outcome Capture</strong> &mdash; Loan approved? Claim denied? That signal flows back and becomes ground truth for model training.</li>
+                </ul>
+                <div class="insight rv">
+                    <p>The outcome feedback loop is what turns this from a scoring tool into a learning system.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 7: PHASE 3 — HYBRID INFERENCE -->
+        <section class="slide">
+            <div class="orb oc" style="top:28%;left:8%"></div>
+            <div class="orb om" style="bottom:10%;right:18%"></div>
+            <div class="sc">
+                <div class="ph">
+                    <div class="pn rv">03</div>
+                    <div><div class="badge rv">Weeks 5&ndash;9</div><h2 class="rv" style="margin-bottom:0">Hybrid Inference</h2></div>
+                </div>
+                <p class="rv" style="max-width:600px;margin-bottom:var(--gap)">Don't rip out the external API. Gradually replace it as the internal model proves itself.</p>
+                <div class="g3 rv">
+                    <div class="card" style="border-color:rgba(0,255,204,0.25)"><h3 class="cy">Shadow</h3><p>External API is primary. Internal model runs silently alongside. Log every divergence.</p></div>
+                    <div class="card" style="border-color:rgba(255,0,170,0.25)"><h3 class="mg">Canary</h3><p>Route 10% to internal when confidence &gt; 0.75. Monitor closely. Expand or pull back.</p></div>
+                    <div class="card" style="border-color:rgba(59,130,246,0.25)"><h3 style="color:var(--bl)">Graduate</h3><p>Internal model becomes default for proven asset types. External API stays as fallback.</p></div>
+                </div>
+                <p class="rv mu" style="margin-top:var(--gap)">Base model: CLIP ViT-L/14 with custom regression head. Fine-tuned, not trained from scratch.</p>
+            </div>
+        </section>
+
+        <!-- SLIDE 8: PHASE 4 — SCORING & REPORTS -->
+        <section class="slide">
+            <div class="orb om" style="top:35%;right:5%"></div>
+            <div class="sc">
+                <div class="ph">
+                    <div class="pn rv">04</div>
+                    <div><div class="badge badge-mg rv">Weeks 8&ndash;12</div><h2 class="rv" style="margin-bottom:0">Explainable Scoring</h2></div>
+                </div>
+                <p class="rv" style="max-width:600px;margin-bottom:var(--gap)">The output insurers and lenders see. Every score backed by evidence they can audit.</p>
+                <div class="g3 rv">
+                    <div class="card"><h3 class="cy">Decomposed Score</h3><p>Weighted dimensions. Worst-case for structural damage. Composite 1&ndash;100 with tier labels.</p></div>
+                    <div class="card"><h3 class="cy">Evidence Layer</h3><p>Bounding boxes, attention heatmaps, contribution deltas. Show exactly what drove the score.</p></div>
+                    <div class="card"><h3 class="cy">Report API</h3><p>JSON for integrations, PDF for humans. Full audit trail: model version, route decision, confidence.</p></div>
+                </div>
+                <div class="insight rv">
+                    <p>Explainability isn't a nice-to-have &mdash; it's the difference between a tool insurers adopt and one they reject.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 9: TACKLING THE HARD PROBLEMS -->
+        <section class="slide">
+            <div class="orb oc" style="top:10%;right:20%"></div>
+            <div class="sc">
+                <div class="badge rv">Challenges</div>
+                <h2 class="rv">How I'd handle the <span class="cy">hard parts</span></h2>
+                <div class="g2 rv" style="margin-top:var(--gap)">
+                    <div class="card">
+                        <h3>Noisy, Inconsistent Media</h3>
+                        <p>Quality signals (blur, exposure, occlusion) computed at ingest. Low-quality images get down-weighted in scoring, never silently ignored.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Incomplete Inspections</h3>
+                        <p>Coverage scoring per inspection. Report shows exactly which areas were/weren't photographed. Clients see the gaps.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Workflow Integration</h3>
+                        <p>Clean REST API with webhook callbacks. JSON reports for programmatic consumption. PDF for human review. No custom integration per client.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Improving Over Time</h3>
+                        <p>Outcomes (loan denied, claim paid) tagged back to original inspection. Materialized training view refreshes nightly. Model retrains at label thresholds.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 10: WORKING WITH YOUR STACK -->
+        <section class="slide">
+            <div class="orb om" style="bottom:15%;left:10%"></div>
+            <div class="sc">
+                <div class="badge rv">Your Stack</div>
+                <h2 class="rv">I'd build on what you <span class="cy">already have</span></h2>
+                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">No rewrites. Extend the current stack pragmatically. Ship fast, then harden.</p>
+                <table class="tb rv">
+                    <thead><tr><th>Current</th><th>My Addition</th><th>Why</th></tr></thead>
+                    <tbody>
+                        <tr><td>Python backend</td><td>FastAPI for model service</td><td>Same language, async, production-ready</td></tr>
+                        <tr><td>Supabase (Postgres)</td><td>+ pgvector extension</td><td>Embeddings in your existing DB, no new infra</td></tr>
+                        <tr><td>OpenAI + vision APIs</td><td>Inference router layer</td><td>Keep APIs as fallback, gradually replace</td></tr>
+                        <tr><td>JS/HTML/CSS frontend</td><td>Report templates + PDF</td><td>Client-facing output from existing tech</td></tr>
+                        <tr><td>Cloud hosting</td><td>S3 + queue for media pipeline</td><td>Structured storage from day one</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SLIDE 11: BOOTSTRAP STRATEGY -->
+        <section class="slide">
+            <div class="orb oc" style="top:18%;right:8%"></div>
+            <div class="sc">
+                <div class="badge rv">Data Strategy</div>
+                <h2 class="rv">Getting to <span class="cy">500 labels</span> fast</h2>
+                <p class="rv" style="max-width:600px;margin-bottom:var(--gap)">The model doesn't need to be good at first. It needs training infrastructure and labeled data flowing.</p>
+                <div class="g3 rv">
+                    <div class="card">
+                        <h3 class="cy">Retroactive Labeling</h3>
+                        <p>Take every existing prototype inspection through Label Studio with domain experts. 2 people, 2 days, 1,600 images labeled.</p>
+                    </div>
+                    <div class="card">
+                        <h3 class="mg">Synthetic Augmentation</h3>
+                        <p>5&ndash;10x variants per labeled image. Labels inherited. Training diversity without annotation cost.</p>
+                    </div>
+                    <div class="card">
+                        <h3 style="color:var(--bl)">Partner Outcomes</h3>
+                        <p>Process insurer backlog for free. Get outcome labels (loan approved/denied) in return. Worth 10x manual annotations.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 12: WHAT I BRING -->
+        <section class="slide">
+            <div class="orb oc" style="top:30%;left:5%"></div>
+            <div class="orb om" style="bottom:20%;right:10%"></div>
+            <div class="sc">
+                <div class="badge badge-fill rv">What I Bring</div>
+                <h2 class="rv">Why I'm the right fit</h2>
+                <div class="g2 rv" style="margin-top:var(--gap)">
+                    <div class="card" style="border-color:rgba(0,255,204,0.3)">
+                        <h3 class="cy">Full-Stack Builder</h3>
+                        <p>I don't hand off between backend, frontend, and infra. I build the pipeline end to end, from API to database to UI to deployment.</p>
+                    </div>
+                    <div class="card" style="border-color:rgba(0,255,204,0.3)">
+                        <h3 class="cy">Systems Architecture</h3>
+                        <p>I think in services, data flow, and contracts. I design systems that scale by staying decoupled &mdash; not by getting bigger.</p>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,0,170,0.3)">
+                        <h3 class="mg">Ship Fast, Iterate</h3>
+                        <p>I prioritize getting working software in production over perfect architecture. Build it, measure it, improve it. Repeat.</p>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,0,170,0.3)">
+                        <h3 class="mg">Decision Systems &gt; Model Accuracy</h3>
+                        <p>I understand that VeriBuy's value is the decision pipeline, not the model. I'd build the system that makes the model useful.</p>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 13: 90-DAY COMMITMENT -->
+        <section class="slide">
+            <div class="orb oc" style="bottom:20%;left:15%"></div>
+            <div class="sc">
+                <div class="badge rv">First 90 Days</div>
+                <h2 class="rv">What I'd <span class="cy">deliver</span></h2>
+                <table class="tb rv" style="margin-top:var(--gap)">
+                    <thead><tr><th>Week</th><th>Deliverable</th></tr></thead>
+                    <tbody>
+                        <tr><td class="cy">1&ndash;2</td><td>Ingestion API accepting media, storing structured to S3 + Postgres. Quality signals extracted.</td></tr>
+                        <tr><td class="cy">3&ndash;4</td><td>Asset graph linking inspections. Label Studio deployed. First 500 images annotated.</td></tr>
+                        <tr><td class="cy">5&ndash;6</td><td>First internal model trained. Inference router in shadow mode alongside existing APIs.</td></tr>
+                        <tr><td class="cy">7&ndash;8</td><td>Scoring engine with evidence layer. Attention maps. Coverage reports.</td></tr>
+                        <tr><td class="cy">9&ndash;10</td><td>Model V2 retrained on expanded data. Canary routing at 10%. Report API + PDF output.</td></tr>
+                        <tr><td class="cy">11&ndash;12</td><td>Outcome capture live. Production hardened. First real inspection scored end-to-end.</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+
+        <!-- SLIDE 14: CLOSING -->
+        <section class="slide">
+            <div class="orb oc" style="top:12%;left:18%"></div>
+            <div class="orb om" style="bottom:12%;right:12%"></div>
+            <div class="sc ctr">
+                <div class="badge badge-fill rv">Let's Build This</div>
+                <h2 class="grad rv" style="font-size:var(--title);max-width:750px">The system that learns from every inspection is the product.</h2>
+                <p class="rv" style="margin-top:var(--gap);max-width:500px;font-size:clamp(0.85rem,1.5vw,1.1rem)">I'd love to be the one who builds it.</p>
+                <div class="stats rv" style="margin-top:var(--gap)">
+                    <div><div class="sv" style="font-size:clamp(1.2rem,2.5vw,1.8rem)">Brian Pyatt</div><div class="sl">Full-Stack &bull; Architecture &bull; Ship Fast</div></div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <script>
+        class SlidePresentation{
+            constructor(){
+                this.slides=[...document.querySelectorAll('.slide')];
+                this.idx=0;this.total=this.slides.length;this.busy=false;
+                document.getElementById('tot').textContent=String(this.total).padStart(2,'0');
+                this.buildDots();this.bindKeys();this.bindTouch();this.bindWheel();this.update();
+            }
+            buildDots(){
+                const c=document.getElementById('dots');
+                this.slides.forEach((_,i)=>{const d=document.createElement('button');d.className='nav-dot';d.setAttribute('aria-label','Slide '+(i+1));d.addEventListener('click',()=>this.go(i));c.appendChild(d)});
+                this.dots=[...c.querySelectorAll('.nav-dot')];
+            }
+            go(n){
+                if(n===this.idx||n<0||n>=this.total||this.busy)return;
+                this.busy=true;
+                const dir=n>this.idx?'up':'down';
+                const prev=this.slides[this.idx];
+                prev.classList.remove('active');
+                prev.classList.add(dir==='up'?'exit-up':'exit-down');
+                this.idx=n;
+                const next=this.slides[this.idx];
+                next.classList.remove('exit-up','exit-down');
+                next.classList.add('active');
+                this.update();
+                setTimeout(()=>{prev.classList.remove('exit-up','exit-down');this.busy=false},500);
+            }
+            next(){this.go(this.idx+1)}
+            prev(){this.go(this.idx-1)}
+            update(){
+                document.getElementById('cur').textContent=String(this.idx+1).padStart(2,'0');
+                document.getElementById('prog').style.width=((this.idx+1)/this.total*100)+'%';
+                this.dots.forEach((d,i)=>d.classList.toggle('active',i===this.idx));
+            }
+            bindKeys(){
+                document.addEventListener('keydown',e=>{
+                    if(['ArrowDown','ArrowRight',' ','PageDown'].includes(e.key)){e.preventDefault();this.next()}
+                    if(['ArrowUp','ArrowLeft','PageUp'].includes(e.key)){e.preventDefault();this.prev()}
+                    if(e.key==='Home'){e.preventDefault();this.go(0)}
+                    if(e.key==='End'){e.preventDefault();this.go(this.total-1)}
+                });
+            }
+            bindTouch(){
+                let y0=0;
+                document.addEventListener('touchstart',e=>{y0=e.touches[0].clientY},{passive:true});
+                document.addEventListener('touchend',e=>{const d=y0-e.changedTouches[0].clientY;if(Math.abs(d)>50)d>0?this.next():this.prev()},{passive:true});
+            }
+            bindWheel(){
+                let last=0;
+                document.addEventListener('wheel',e=>{if(Date.now()-last<700)return;last=Date.now();e.deltaY>0?this.next():this.prev()},{passive:true});
+            }
+        }
+        new SlidePresentation();
+    </script>
+</body>
+</html>
