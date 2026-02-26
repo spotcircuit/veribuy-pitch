@@ -225,39 +225,70 @@
             </div>
         </section>
 
-        <!-- SLIDE 4: MY APPROACH — OVERVIEW -->
+        <!-- SLIDE 5: MY APPROACH — WHAT THE SYSTEM DOES -->
         <section class="slide">
             <div class="orb oc" style="bottom:15%;right:12%"></div>
             <div class="sc">
                 <div class="badge badge-fill rv">My Approach</div>
-                <h2 class="rv">How I'd architect this</h2>
-                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">Seven services, loosely coupled via event bus. Each owns its data. Each can be built, tested, and deployed independently. I'd build them in 4 phases.</p>
-                <div class="flow rv">
-                    <div class="fs">Ingestion API</div><div class="fa">&rarr;</div>
-                    <div class="fs">Media Processor</div><div class="fa">&rarr;</div>
-                    <div class="fs">Inference Router</div><div class="fa">&rarr;</div>
-                    <div class="fs">Model Service</div><div class="fa">&rarr;</div>
-                    <div class="fs">Scoring Engine</div><div class="fa">&rarr;</div>
-                    <div class="fs">Report API</div>
+                <h2 class="rv">What the system <span class="cy">actually does</span></h2>
+                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">Four capabilities that turn VeriBuy from a tool into a compounding asset.</p>
+                <div class="g2 rv">
+                    <div class="card" style="border-color:rgba(0,255,204,0.25)">
+                        <h3 class="cy">Capture &amp; Structure</h3>
+                        <p>Inspector uploads 10 photos of a vehicle. The system instantly validates quality, flags blurry shots, extracts location data, and stores everything in a format ready for analysis. <span class="mu">No manual cleanup needed.</span></p>
+                    </div>
+                    <div class="card" style="border-color:rgba(0,255,204,0.25)">
+                        <h3 class="cy">Score &amp; Explain</h3>
+                        <p>Instead of a black-box number, clients get a breakdown: "Body panels: 6.2 &mdash; moderate dent detected on rear quarter panel." <span class="mu">Every score backed by visual evidence.</span></p>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,0,170,0.25)">
+                        <h3 class="mg">Learn &amp; Improve</h3>
+                        <p>A lender denies a loan. That outcome flows back to VeriBuy and teaches the model what a "bad score" actually looks like in the real world. <span class="mu">Accuracy compounds with every decision.</span></p>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,0,170,0.25)">
+                        <h3 class="mg">Track Over Time</h3>
+                        <p>Same car inspected in January at 87, comes back in July at 62. VeriBuy sees the delta &mdash; flags deterioration, catches fraud. <span class="mu">No single-inspection tool can do this.</span></p>
+                    </div>
                 </div>
-                <p class="rv mu" style="margin-top:var(--gap)">+ Label Studio Adapter for training data capture &bull; Kafka event bus for async, replayable comms</p>
+                <div class="flow rv" style="margin-top:var(--gap)">
+                    <div class="fs">Capture</div><div class="fa">&rarr;</div>
+                    <div class="fs">Process</div><div class="fa">&rarr;</div>
+                    <div class="fs">Analyze</div><div class="fa">&rarr;</div>
+                    <div class="fs">Score</div><div class="fa">&rarr;</div>
+                    <div class="fs">Report</div><div class="fa">&rarr;</div>
+                    <div class="fs" style="border-color:rgba(255,0,170,0.3)">Learn</div>
+                </div>
             </div>
         </section>
 
-        <!-- SLIDE 5: PHASE 1 — INGESTION -->
+        <!-- SLIDE 6: WHY THIS ARCHITECTURE MATTERS -->
         <section class="slide">
             <div class="orb oc" style="top:45%;left:3%"></div>
             <div class="sc">
-                <div class="ph">
-                    <div class="pn rv">01</div>
-                    <div><div class="badge rv">Weeks 1&ndash;4</div><h2 class="rv" style="margin-bottom:0">Structured Ingestion</h2></div>
-                </div>
-                <p class="rv" style="max-width:600px;margin-bottom:var(--gap)">The foundation. Every photo, every signal, structured from the moment it hits the system.</p>
+                <div class="badge rv">Architecture Decisions</div>
+                <h2 class="rv">Why it's built <span class="cy">this way</span></h2>
+                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">Every technical decision maps to a business outcome.</p>
                 <div class="g2 rv">
-                    <div class="card"><h3 class="cy">Validate &amp; Store</h3><p>MIME checks, pHash dedup, size limits, malware scan. Raw &rarr; S3 with structured paths.</p></div>
-                    <div class="card"><h3 class="cy">Extract Signals</h3><p>EXIF, GPS, quality scores (blur, brightness, contrast), face/plate detection &amp; auto-blur.</p></div>
-                    <div class="card"><h3 class="cy">Normalize</h3><p>Standardized JPEG at 2048px, 256px thumbnails, CLIP embeddings stored in pgvector.</p></div>
-                    <div class="card"><h3 class="cy">Asset Graph</h3><p>Link inspections to assets over time. This is where the compounding data moat starts.</p></div>
+                    <div class="card">
+                        <h3>Structured from day one</h3>
+                        <p><span class="cy">Business:</span> When you're ready to train your own model, every past inspection is already usable. No re-collecting data. No lost history.</p>
+                        <p style="margin-top:.4em"><span class="mu">Technical: Normalized storage, quality signals, embeddings computed at ingest.</span></p>
+                    </div>
+                    <div class="card">
+                        <h3>Quality-aware scoring</h3>
+                        <p><span class="cy">Business:</span> A blurry photo doesn't produce a bad score &mdash; it gets down-weighted. Clients trust the output even when inspectors aren't perfect.</p>
+                        <p style="margin-top:.4em"><span class="mu">Technical: Blur, brightness, contrast signals weight each image's contribution.</span></p>
+                    </div>
+                    <div class="card">
+                        <h3>Gradual AI independence</h3>
+                        <p><span class="cy">Business:</span> You keep using OpenAI today while quietly building your own model. Zero client disruption. Switch when the internal model proves itself.</p>
+                        <p style="margin-top:.4em"><span class="mu">Technical: Shadow mode &rarr; canary routing &rarr; graduated rollout.</span></p>
+                    </div>
+                    <div class="card">
+                        <h3>Asset history = moat</h3>
+                        <p><span class="cy">Business:</span> A competitor can copy your model. They can't copy 2 years of condition history on 50,000 vehicles. That data advantage is permanent.</p>
+                        <p style="margin-top:.4em"><span class="mu">Technical: Asset graph links inspections per VIN/policy over time.</span></p>
+                    </div>
                 </div>
             </div>
         </section>
