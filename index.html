@@ -293,138 +293,176 @@
             </div>
         </section>
 
-        <!-- SLIDE 6: PHASE 2 — TRAINING DATA -->
+        <!-- SLIDE 7: TEACHING THE SYSTEM -->
         <section class="slide">
             <div class="orb om" style="bottom:18%;right:8%"></div>
             <div class="sc">
-                <div class="ph">
-                    <div class="pn rv">02</div>
-                    <div><div class="badge badge-mg rv">Weeks 3&ndash;6</div><h2 class="rv" style="margin-bottom:0">Training Data Infrastructure</h2></div>
-                </div>
-                <p class="rv" style="max-width:600px;margin-bottom:var(--gap)">Most teams skip this and regret it. I'd build outcome capture from day one.</p>
-                <ul class="fl rv">
-                    <li><strong>Label Studio</strong> &mdash; Self-hosted annotation tool, not a custom UI. Focus effort on the adapter, not the interface.</li>
-                    <li><strong>6-Dimension Taxonomy</strong> &mdash; Exterior paint, body panels, glass, wheels, interior, mechanical. Locked before first annotation.</li>
-                    <li><strong>Inter-Rater Tracking</strong> &mdash; Dual-annotate 20% of images. If MAE &gt; 2.0 on any dimension, rewrite the guideline.</li>
-                    <li><strong>Outcome Capture</strong> &mdash; Loan approved? Claim denied? That signal flows back and becomes ground truth for model training.</li>
-                </ul>
-                <div class="insight rv">
-                    <p>The outcome feedback loop is what turns this from a scoring tool into a learning system.</p>
+                <div class="badge rv">Intelligence Layer</div>
+                <h2 class="rv">How the system <span class="cy">gets smarter</span></h2>
+                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">Most platforms score and forget. VeriBuy captures three signals that compound over time.</p>
+                <div class="g3 rv">
+                    <div class="card" style="border-color:rgba(0,255,204,0.25)">
+                        <h3 class="cy">Expert Labels</h3>
+                        <p>Domain experts review inspections and score six dimensions &mdash; paint, panels, glass, wheels, interior, mechanical. This teaches the model what "good" and "bad" actually look like.</p>
+                        <p style="margin-top:.4em"><span class="mu">Technical: Label Studio with 6-dimension taxonomy, inter-rater agreement tracking, dual annotation on 20%.</span></p>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,0,170,0.25)">
+                        <h3 class="mg">Real-World Outcomes</h3>
+                        <p>A lender approves a loan. Six months later, the borrower defaults. That outcome flows back and tells VeriBuy: "your score was too high." <span style="color:var(--text)">This is the signal competitors don't have.</span></p>
+                        <p style="margin-top:.4em"><span class="mu">Technical: Outcome capture API, materialized training view joining scores to decisions.</span></p>
+                    </div>
+                    <div class="card" style="border-color:rgba(59,130,246,0.25)">
+                        <h3 style="color:var(--bl)">Corrections</h3>
+                        <p>When a human reviewer disagrees with a score, that correction is captured and fed back. The rate of corrections decreasing over time is how you measure the model improving.</p>
+                        <p style="margin-top:.4em"><span class="mu">Technical: Label correction pipeline, correction rate as key model health metric.</span></p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 7: PHASE 3 — HYBRID INFERENCE -->
+        <!-- SLIDE 8: REPLACING THE EXTERNAL API -->
         <section class="slide">
             <div class="orb oc" style="top:28%;left:8%"></div>
             <div class="orb om" style="bottom:10%;right:18%"></div>
             <div class="sc">
-                <div class="ph">
-                    <div class="pn rv">03</div>
-                    <div><div class="badge rv">Weeks 5&ndash;9</div><h2 class="rv" style="margin-bottom:0">Hybrid Inference</h2></div>
-                </div>
-                <p class="rv" style="max-width:600px;margin-bottom:var(--gap)">Don't rip out the external API. Gradually replace it as the internal model proves itself.</p>
+                <div class="badge rv">AI Independence</div>
+                <h2 class="rv">Owning your intelligence &mdash; <span class="cy">without risk</span></h2>
+                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">You don't flip a switch from external API to internal model. You earn it in three stages.</p>
                 <div class="g3 rv">
-                    <div class="card" style="border-color:rgba(0,255,204,0.25)"><h3 class="cy">Shadow</h3><p>External API is primary. Internal model runs silently alongside. Log every divergence.</p></div>
-                    <div class="card" style="border-color:rgba(255,0,170,0.25)"><h3 class="mg">Canary</h3><p>Route 10% to internal when confidence &gt; 0.75. Monitor closely. Expand or pull back.</p></div>
-                    <div class="card" style="border-color:rgba(59,130,246,0.25)"><h3 style="color:var(--bl)">Graduate</h3><p>Internal model becomes default for proven asset types. External API stays as fallback.</p></div>
+                    <div class="card" style="border-color:rgba(0,255,204,0.25)">
+                        <h3 class="cy">Shadow</h3>
+                        <p><span class="cy">What clients see:</span> Nothing changes. Same API, same results.</p>
+                        <p style="margin-top:.3em"><span class="cy">What happens behind the scenes:</span> Your internal model runs on every request silently. You compare its answers to the external API and measure the gap.</p>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,0,170,0.25)">
+                        <h3 class="mg">Canary</h3>
+                        <p><span class="cy">What clients see:</span> Still nothing. Identical experience.</p>
+                        <p style="margin-top:.3em"><span class="cy">Behind the scenes:</span> 10% of requests use the internal model when it's confident. If anything looks off, you pull back instantly.</p>
+                    </div>
+                    <div class="card" style="border-color:rgba(59,130,246,0.25)">
+                        <h3 style="color:var(--bl)">Graduate</h3>
+                        <p><span class="cy">The result:</span> Internal model handles most traffic. External API stays as safety net. API costs drop. You own the intelligence.</p>
+                        <p style="margin-top:.3em"><span class="mu">Built on fine-tuned CLIP ViT-L/14 with custom scoring head.</span></p>
+                    </div>
                 </div>
-                <p class="rv mu" style="margin-top:var(--gap)">Base model: CLIP ViT-L/14 with custom regression head. Fine-tuned, not trained from scratch.</p>
             </div>
         </section>
 
-        <!-- SLIDE 8: PHASE 4 — SCORING & REPORTS -->
+        <!-- SLIDE 9: WHAT CLIENTS ACTUALLY SEE -->
         <section class="slide">
             <div class="orb om" style="top:35%;right:5%"></div>
             <div class="sc">
-                <div class="ph">
-                    <div class="pn rv">04</div>
-                    <div><div class="badge badge-mg rv">Weeks 8&ndash;12</div><h2 class="rv" style="margin-bottom:0">Explainable Scoring</h2></div>
-                </div>
-                <p class="rv" style="max-width:600px;margin-bottom:var(--gap)">The output insurers and lenders see. Every score backed by evidence they can audit.</p>
-                <div class="g3 rv">
-                    <div class="card"><h3 class="cy">Decomposed Score</h3><p>Weighted dimensions. Worst-case for structural damage. Composite 1&ndash;100 with tier labels.</p></div>
-                    <div class="card"><h3 class="cy">Evidence Layer</h3><p>Bounding boxes, attention heatmaps, contribution deltas. Show exactly what drove the score.</p></div>
-                    <div class="card"><h3 class="cy">Report API</h3><p>JSON for integrations, PDF for humans. Full audit trail: model version, route decision, confidence.</p></div>
-                </div>
-                <div class="insight rv">
-                    <p>Explainability isn't a nice-to-have &mdash; it's the difference between a tool insurers adopt and one they reject.</p>
+                <div class="badge rv">Client Output</div>
+                <h2 class="rv">What the client <span class="cy">actually receives</span></h2>
+                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">Not a black-box number. A full condition report they can defend to regulators, underwriters, and buyers.</p>
+                <div class="g2 rv">
+                    <div class="card" style="border-color:rgba(0,255,204,0.25)">
+                        <h3 class="cy">Condition Breakdown</h3>
+                        <p>A composite score (1&ndash;100) broken into dimensions: "Body panels: 6.2 &mdash; dent on rear quarter." Each dimension weighted by how much it affects value. Structural issues tank the score; cosmetic ones don't.</p>
+                    </div>
+                    <div class="card" style="border-color:rgba(0,255,204,0.25)">
+                        <h3 class="cy">Visual Evidence</h3>
+                        <p>Each finding links to the actual photo with the problem area highlighted. The client can see exactly what the AI saw and why it scored that way. No guessing.</p>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,0,170,0.25)">
+                        <h3 class="mg">Coverage Report</h3>
+                        <p>The report shows what was photographed and what wasn't. "Front, rear, both sides captured. Engine bay and underbody: missing." The client knows the gaps before making a decision.</p>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,0,170,0.25)">
+                        <h3 class="mg">Audit Trail</h3>
+                        <p>Which model version scored this. What confidence level. Whether it was routed internally or through the external API. Full traceability for regulated industries.</p>
+                    </div>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 9: TACKLING THE HARD PROBLEMS -->
+        <!-- SLIDE 10: REAL-WORLD CHALLENGES -->
         <section class="slide">
             <div class="orb oc" style="top:10%;right:20%"></div>
             <div class="sc">
-                <div class="badge rv">Challenges</div>
-                <h2 class="rv">How I'd handle the <span class="cy">hard parts</span></h2>
+                <div class="badge rv">Real-World Challenges</div>
+                <h2 class="rv">The hard parts &mdash; and how I'd <span class="cy">solve them</span></h2>
                 <div class="g2 rv" style="margin-top:var(--gap)">
                     <div class="card">
-                        <h3>Noisy, Inconsistent Media</h3>
-                        <p>Quality signals (blur, exposure, occlusion) computed at ingest. Low-quality images get down-weighted in scoring, never silently ignored.</p>
+                        <h3>Inspectors aren't perfect</h3>
+                        <p><span class="cy">Reality:</span> Photos will be blurry, poorly lit, missing angles. You can't control field conditions.</p>
+                        <p style="margin-top:.3em"><span class="cy">Solution:</span> The system detects quality issues automatically and down-weights unreliable images instead of producing unreliable scores.</p>
                     </div>
                     <div class="card">
-                        <h3>Incomplete Inspections</h3>
-                        <p>Coverage scoring per inspection. Report shows exactly which areas were/weren't photographed. Clients see the gaps.</p>
+                        <h3>Clients need it yesterday</h3>
+                        <p><span class="cy">Reality:</span> Dealers and auction houses need turnaround in minutes, not days.</p>
+                        <p style="margin-top:.3em"><span class="cy">Solution:</span> The pipeline processes photos as they're uploaded. By the time the last photo lands, the first ones are already scored.</p>
                     </div>
                     <div class="card">
-                        <h3>Workflow Integration</h3>
-                        <p>Clean REST API with webhook callbacks. JSON reports for programmatic consumption. PDF for human review. No custom integration per client.</p>
+                        <h3>Every client integrates differently</h3>
+                        <p><span class="cy">Reality:</span> Insurers want PDF reports. Lenders want API calls. Marketplaces want embedded widgets.</p>
+                        <p style="margin-top:.3em"><span class="cy">Solution:</span> One scoring engine, multiple output formats. JSON API, PDF generation, webhook callbacks. No custom builds per client.</p>
                     </div>
                     <div class="card">
-                        <h3>Improving Over Time</h3>
-                        <p>Outcomes (loan denied, claim paid) tagged back to original inspection. Materialized training view refreshes nightly. Model retrains at label thresholds.</p>
+                        <h3>Regulation &amp; trust</h3>
+                        <p><span class="cy">Reality:</span> Insurers can't use a tool they can't explain to regulators.</p>
+                        <p style="margin-top:.3em"><span class="cy">Solution:</span> Every score decomposed into weighted dimensions with evidence. Full audit trail. The math is visible.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 10: WORKING WITH YOUR STACK -->
+        <!-- SLIDE 11: BUILDING ON YOUR FOUNDATION -->
         <section class="slide">
             <div class="orb om" style="bottom:15%;left:10%"></div>
             <div class="sc">
-                <div class="badge rv">Your Stack</div>
-                <h2 class="rv">I'd build on what you <span class="cy">already have</span></h2>
-                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">No rewrites. Extend the current stack pragmatically. Ship fast, then harden.</p>
-                <table class="tb rv">
-                    <thead><tr><th>Current</th><th>My Addition</th><th>Why</th></tr></thead>
-                    <tbody>
-                        <tr><td>Python backend</td><td>FastAPI for model service</td><td>Same language, async, production-ready</td></tr>
-                        <tr><td>Supabase (Postgres)</td><td>+ pgvector extension</td><td>Embeddings in your existing DB, no new infra</td></tr>
-                        <tr><td>OpenAI + vision APIs</td><td>Inference router layer</td><td>Keep APIs as fallback, gradually replace</td></tr>
-                        <tr><td>JS/HTML/CSS frontend</td><td>Report templates + PDF</td><td>Client-facing output from existing tech</td></tr>
-                        <tr><td>Cloud hosting</td><td>S3 + queue for media pipeline</td><td>Structured storage from day one</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- SLIDE 11: BOOTSTRAP STRATEGY -->
-        <section class="slide">
-            <div class="orb oc" style="top:18%;right:8%"></div>
-            <div class="sc">
-                <div class="badge rv">Data Strategy</div>
-                <h2 class="rv">Getting to <span class="cy">500 labels</span> fast</h2>
-                <p class="rv" style="max-width:600px;margin-bottom:var(--gap)">The model doesn't need to be good at first. It needs training infrastructure and labeled data flowing.</p>
-                <div class="g3 rv">
+                <div class="badge rv">Foundation</div>
+                <h2 class="rv">Building on what <span class="cy">already works</span></h2>
+                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">I wouldn't rewrite your stack. I'd extend it. Every addition has a clear reason.</p>
+                <div class="g2 rv" style="margin-top:var(--gap)">
                     <div class="card">
-                        <h3 class="cy">Retroactive Labeling</h3>
-                        <p>Take every existing prototype inspection through Label Studio with domain experts. 2 people, 2 days, 1,600 images labeled.</p>
+                        <h3>Python backend stays</h3>
+                        <p><span class="cy">What I'd add:</span> A FastAPI service for the model. Same language your team already knows. Async, production-grade, easy to deploy alongside what exists.</p>
                     </div>
                     <div class="card">
-                        <h3 class="mg">Synthetic Augmentation</h3>
-                        <p>5&ndash;10x variants per labeled image. Labels inherited. Training diversity without annotation cost.</p>
+                        <h3>Supabase stays</h3>
+                        <p><span class="cy">What I'd add:</span> The pgvector extension for image embeddings. It lives inside your existing Postgres &mdash; no new database, no new vendor, no migration.</p>
                     </div>
                     <div class="card">
-                        <h3 style="color:var(--bl)">Partner Outcomes</h3>
-                        <p>Process insurer backlog for free. Get outcome labels (loan approved/denied) in return. Worth 10x manual annotations.</p>
+                        <h3>OpenAI stays (for now)</h3>
+                        <p><span class="cy">What I'd add:</span> An inference router in front of it. Today it passes everything through. Tomorrow it starts routing to your own model. Zero disruption.</p>
+                    </div>
+                    <div class="card">
+                        <h3>Cloud hosting stays</h3>
+                        <p><span class="cy">What I'd add:</span> Structured S3 storage for media and a message queue for the processing pipeline. This is how inspection data becomes training data.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 12: WHAT I BRING -->
+        <!-- SLIDE 12: COLD START — DATA BOOTSTRAP -->
+        <section class="slide">
+            <div class="orb oc" style="top:18%;right:8%"></div>
+            <div class="sc">
+                <div class="badge rv">Cold Start</div>
+                <h2 class="rv">Bootstrapping the <span class="cy">data advantage</span></h2>
+                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">The model needs data before it can learn. Three paths running in parallel to get there fast.</p>
+                <div class="g3 rv">
+                    <div class="card" style="border-color:rgba(0,255,204,0.25)">
+                        <h3 class="cy">Label existing data</h3>
+                        <p>Every inspection from the current prototype gets run through the labeling tool. Two domain experts, a focused sprint, and you have over a thousand labeled images from data you already own.</p>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,0,170,0.25)">
+                        <h3 class="mg">Multiply what you have</h3>
+                        <p>Each labeled photo generates multiple training variants &mdash; different lighting, angles, compression. The AI sees more diversity without anyone taking more photos.</p>
+                    </div>
+                    <div class="card" style="border-color:rgba(59,130,246,0.25)">
+                        <h3 style="color:var(--bl)">Partner for outcomes</h3>
+                        <p>Offer a regional insurer or lender free condition scoring on their historical backlog. In return, they share their decisions. Those real-world outcomes are <span style="color:var(--text)">10x more valuable</span> than manual labels.</p>
+                    </div>
+                </div>
+                <div class="insight rv">
+                    <p>The partner path is also a sales pipeline &mdash; you're demonstrating VeriBuy's value while building the dataset that makes it better.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- SLIDE 13: WHAT I BRING -->
         <section class="slide">
             <div class="orb oc" style="top:30%;left:5%"></div>
             <div class="orb om" style="bottom:20%;right:10%"></div>
@@ -433,46 +471,59 @@
                 <h2 class="rv">Why I'm the right fit</h2>
                 <div class="g2 rv" style="margin-top:var(--gap)">
                     <div class="card" style="border-color:rgba(0,255,204,0.3)">
-                        <h3 class="cy">Full-Stack Builder</h3>
-                        <p>I don't hand off between backend, frontend, and infra. I build the pipeline end to end, from API to database to UI to deployment.</p>
+                        <h3 class="cy">I build end to end</h3>
+                        <p>API, database, frontend, deployment &mdash; I don't hand off between layers. One person who owns the pipeline from photo upload to PDF report means fewer gaps and faster iteration.</p>
                     </div>
                     <div class="card" style="border-color:rgba(0,255,204,0.3)">
-                        <h3 class="cy">Systems Architecture</h3>
-                        <p>I think in services, data flow, and contracts. I design systems that scale by staying decoupled &mdash; not by getting bigger.</p>
+                        <h3 class="cy">I think in systems</h3>
+                        <p>Not just "how does this service work" but "how do seven services work together." Data flow, contracts between pieces, what happens when one part fails. That's how you build something reliable.</p>
                     </div>
                     <div class="card" style="border-color:rgba(255,0,170,0.3)">
-                        <h3 class="mg">Ship Fast, Iterate</h3>
-                        <p>I prioritize getting working software in production over perfect architecture. Build it, measure it, improve it. Repeat.</p>
+                        <h3 class="mg">I ship, then improve</h3>
+                        <p>Working software in production beats perfect architecture on a whiteboard. Get the pipeline running. Measure real data. Iterate based on what you learn. That's how startups win.</p>
                     </div>
                     <div class="card" style="border-color:rgba(255,0,170,0.3)">
-                        <h3 class="mg">Decision Systems &gt; Model Accuracy</h3>
-                        <p>I understand that VeriBuy's value is the decision pipeline, not the model. I'd build the system that makes the model useful.</p>
+                        <h3 class="mg">I get the real product</h3>
+                        <p>VeriBuy's value isn't the model &mdash; it's the decision system around it. The ingestion, the labeling, the scoring, the evidence, the feedback loop. I'd build the machine that makes the model useful.</p>
                     </div>
                 </div>
             </div>
         </section>
 
-        <!-- SLIDE 13: 90-DAY COMMITMENT -->
+        <!-- SLIDE 14: WHAT SUCCESS LOOKS LIKE -->
         <section class="slide">
             <div class="orb oc" style="bottom:20%;left:15%"></div>
             <div class="sc">
-                <div class="badge rv">First 90 Days</div>
-                <h2 class="rv">What I'd <span class="cy">deliver</span></h2>
-                <table class="tb rv" style="margin-top:var(--gap)">
-                    <thead><tr><th>Week</th><th>Deliverable</th></tr></thead>
-                    <tbody>
-                        <tr><td class="cy">1&ndash;2</td><td>Ingestion API accepting media, storing structured to S3 + Postgres. Quality signals extracted.</td></tr>
-                        <tr><td class="cy">3&ndash;4</td><td>Asset graph linking inspections. Label Studio deployed. First 500 images annotated.</td></tr>
-                        <tr><td class="cy">5&ndash;6</td><td>First internal model trained. Inference router in shadow mode alongside existing APIs.</td></tr>
-                        <tr><td class="cy">7&ndash;8</td><td>Scoring engine with evidence layer. Attention maps. Coverage reports.</td></tr>
-                        <tr><td class="cy">9&ndash;10</td><td>Model V2 retrained on expanded data. Canary routing at 10%. Report API + PDF output.</td></tr>
-                        <tr><td class="cy">11&ndash;12</td><td>Outcome capture live. Production hardened. First real inspection scored end-to-end.</td></tr>
-                    </tbody>
-                </table>
+                <div class="badge rv">Milestones</div>
+                <h2 class="rv">What <span class="cy">success</span> looks like</h2>
+                <p class="rv" style="max-width:650px;margin-bottom:var(--gap)">Concrete outcomes you can measure &mdash; not just features shipped.</p>
+                <div class="g2 rv" style="margin-top:var(--gap)">
+                    <div class="card" style="border-color:rgba(0,255,204,0.25)">
+                        <h3 class="cy">Near term</h3>
+                        <ul class="fl" style="margin-top:.4em">
+                            <li>Every new inspection captured structured and training-ready</li>
+                            <li>Quality issues flagged automatically, not discovered in reports</li>
+                            <li>First internal model running in shadow mode, measuring itself against the API</li>
+                            <li>Existing prototype data labeled and feeding the pipeline</li>
+                        </ul>
+                    </div>
+                    <div class="card" style="border-color:rgba(255,0,170,0.25)">
+                        <h3 class="mg">Medium term</h3>
+                        <ul class="fl" style="margin-top:.4em">
+                            <li>Internal model handling live traffic for proven asset types</li>
+                            <li>Client-facing reports with full evidence and audit trail</li>
+                            <li>Outcome feedback flowing back from partner lenders/insurers</li>
+                            <li>API costs dropping as internal model takes over</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="insight rv">
+                    <p>The long-term outcome: every inspection makes the next one more accurate. That's a moat that grows with your business.</p>
+                </div>
             </div>
         </section>
 
-        <!-- SLIDE 14: CLOSING -->
+        <!-- SLIDE 15: CLOSING -->
         <section class="slide">
             <div class="orb oc" style="top:12%;left:18%"></div>
             <div class="orb om" style="bottom:12%;right:12%"></div>
@@ -481,7 +532,7 @@
                 <h2 class="grad rv" style="font-size:var(--title);max-width:750px">The system that learns from every inspection is the product.</h2>
                 <p class="rv" style="margin-top:var(--gap);max-width:500px;font-size:clamp(0.85rem,1.5vw,1.1rem)">I'd love to be the one who builds it.</p>
                 <div class="stats rv" style="margin-top:var(--gap)">
-                    <div><div class="sv" style="font-size:clamp(1.2rem,2.5vw,1.8rem)">Brian Pyatt</div><div class="sl">Full-Stack &bull; Architecture &bull; Ship Fast</div></div>
+                    <div><div class="sv" style="font-size:clamp(1.2rem,2.5vw,1.8rem)">Brian Pyatt</div><div class="sl">Full-Stack &bull; Systems Architecture &bull; Ship Fast</div></div>
                 </div>
             </div>
         </section>
